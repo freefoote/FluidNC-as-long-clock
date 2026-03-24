@@ -89,8 +89,8 @@ long_clock_sntp:
 
 long_clock:
   enabled: true
-  hour24: true
-  pos_start_mm: 0.0
-  pos_end_mm: 300.0
+  hour24: false
+  pos_start_mm: 3
+  pos_end_mm: 2235.0
   feed_mm_min: 3000.0
   rapid: false
