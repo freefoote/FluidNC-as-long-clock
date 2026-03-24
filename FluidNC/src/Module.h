@@ -102,6 +102,7 @@ public:
     const char*  name() { return _name; };
     virtual void init() {}
     virtual void deinit() {}
+    virtual void poll() {}
 };
 
 using ModuleFactory = Configuration::GenericFactory<Module>;

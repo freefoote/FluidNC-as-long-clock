@@ -134,13 +134,17 @@ void polling_loop(void* unused) {
         }
 
         // Polling without an argument checks for realtime characters
-        // Polling with an argument both checks for realtime characters and
-        // returns a line-oriented command if one is ready.
-        pollChannels();
-        for (auto const& module : Modules()) {
-            module->poll();
-            feed_watchdog();
-        }
+         // Polling with an argument both checks for realtime characters and
+         // returns a line-oriented command if one is ready.
+         pollChannels();
+         for (auto const& module : Modules()) {
+             module->poll();
+             feed_watchdog();
+         }
+         for (auto const& module : ConfigurableModules()) {
+             module->poll();
+             feed_watchdog();
+         }
 
         // If activeChannel is non-null, it means that we have received a line
         // but the task running protocol_main_loop() has not yet picked it up.
