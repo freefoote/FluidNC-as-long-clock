@@ -133,18 +133,25 @@ void polling_loop(void* unused) {
             continue;
         }
 
-        // Polling without an argument checks for realtime characters
-         // Polling with an argument both checks for realtime characters and
-         // returns a line-oriented command if one is ready.
-         pollChannels();
-         for (auto const& module : Modules()) {
-             module->poll();
-             feed_watchdog();
-         }
-         for (auto const& module : ConfigurableModules()) {
-             module->poll();
-             feed_watchdog();
-         }
+        // Polling with an argument both checks for realtime characters and
+        // returns a line-oriented command if one is ready.
+        pollChannels();
+        for (auto const& module : Modules()) {
+            module->poll();
+            feed_watchdog();
+        }
+        // ConfigurableModule (derived from Configuration::Configurable) instances are
+        // created lazily at YAML parse time and registered in a separate factory list
+        // from plain Module instances, so they are not polled by the Modules() loop above.
+        // This second loop ensures ConfigurableModules also receive periodic poll() calls.
+        // An alternative would be to have such modules derive from both Module and
+        // Configurable directly, registering with ModuleFactory so they are polled
+        // automatically - but that requires wiring config traversal manually and changes
+        // the module class hierarchy.  This minimal addition to polling_loop() is simpler.
+        for (auto const& module : ConfigurableModules()) {
+            module->poll();
+            feed_watchdog();
+        }
 
         // If activeChannel is non-null, it means that we have received a line
         // but the task running protocol_main_loop() has not yet picked it up.
