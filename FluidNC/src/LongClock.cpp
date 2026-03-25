@@ -39,17 +39,17 @@ void LongClock::poll() {
     }
     _last_check_ms = now_ms;
 
-     // Skip if not enabled
-     if (!_enabled) {
-        log_info("LongClock: Not enabled");
-         return;
-     }
+    // Skip if not enabled
+    if (!_enabled) {
+    log_info("LongClock: Not enabled");
+        return;
+    }
 
-     // Skip if SNTP hasn't synced yet
-     if (!clockIsReady()) {
-         log_info("LongClock: Clock not ready yet, skipping poll");
-         return;
-     }
+    // Skip if SNTP hasn't synced yet
+    if (!clockIsReady()) {
+        log_info("LongClock: Clock not ready yet, skipping poll");
+        return;
+    }
 
     // Get current time
     time_t now = time(nullptr);
