@@ -32,4 +32,5 @@ public:
     float timeToPosition(int hours, int minutes);
     void  moveToTime(int hours, int minutes);
     bool  clockIsReady();
+    bool  isCycleStart(int hours, int minutes);
 };

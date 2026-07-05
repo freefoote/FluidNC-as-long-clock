@@ -30,9 +30,16 @@ periodically by the main polling loop like other FluidNC modules:
 - Waits until the clock looks synced (same "year > 2020" heuristic) before
   doing anything.
 - When the current minute changes:
-  - If the machine is `Idle`, computes a target X position from the current
-    time and issues a G-code move (`moveToTime()`), using either a rapid move
-    (`G90G0`) or a feed move (`G90G1F<feed>`) depending on configuration.
+  - If the machine is `Idle` and the new time is the start of the cycle
+    (`00:00`, or `00:00`/`12:00` in 12-hour mode — i.e. the point that maps to
+    `pos_start_mm`), it re-homes the X axis (`isCycleStart()`) instead of
+    issuing a normal move. Homing re-establishes an accurate zero position on
+    every cycle, which corrects for step drift caused by a hardware issue
+    rather than letting positioning error accumulate indefinitely.
+  - Otherwise, if the machine is `Idle`, it computes a target X position from
+    the current time and issues a G-code move (`moveToTime()`), using either a
+    rapid move (`G90G0`) or a feed move (`G90G1F<feed>`) depending on
+    configuration.
   - If the machine is in `Alarm` state (e.g. because it hit a soft/hard limit
     or lost position), it automatically re-homes the X axis to try to clear
     the alarm and resume operation unattended.
@@ -94,3 +101,9 @@ Then fetch the firmware from `.pio/build/wifi/firmware.bin`.
 - If the machine enters `Alarm` (e.g. a limit fault), `LongClock` will
   automatically attempt to re-home the X axis on the next poll to resume
   unattended clock operation.
+- Every time the clock cycle wraps back to its start (`00:00`, or
+  `00:00`/`12:00` in 12-hour mode), the axis is re-homed rather than moved
+  directly to `pos_start_mm`. This is a deliberate drift-correction measure
+  for a known hardware issue that causes the carriage to gradually lose steps
+  over time; homing at each wraparound bounds how far out of sync the
+  displayed time can get before it's corrected.

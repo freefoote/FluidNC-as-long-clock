@@ -64,7 +64,18 @@ void LongClock::poll() {
 
         // Only move if machine is idle
         if (state_is(State::Idle)) {
-            moveToTime(current_hour, current_minute);
+            if (isCycleStart(current_hour, current_minute)) {
+                // The cycle has wrapped back around to its starting point
+                // (00:00, or 00:00/12:00 in 12-hour mode). Rather than issuing
+                // a normal move to pos_start_mm, home the X axis instead. This
+                // periodically re-establishes an accurate zero position and
+                // corrects for any accumulated step drift from the hardware
+                // issue, rather than letting the error silently grow forever.
+                log_info("LongClock: Cycle start reached, homing X axis to resync position");
+                Machine::Homing::run_cycles(1 << X_AXIS);
+            } else {
+                moveToTime(current_hour, current_minute);
+            }
         } else if (state_is(State::Alarm)) {
             // If in alarm state, attempt to home on X axis to clear alarm
             log_info("LongClock: Machine in alarm state, attempting to home X axis");
@@ -92,6 +103,13 @@ float LongClock::timeToPosition(int hours, int minutes) {
     // Calculate position
     float x_pos = _pos_start_mm + fraction * (_pos_end_mm - _pos_start_mm);
     return x_pos;
+}
+
+bool LongClock::isCycleStart(int hours, int minutes) {
+    // The start of the cycle (which maps to pos_start_mm) is minute 0 of
+    // hour 0 in 24-hour mode, or minute 0 of hour 0/12 in 12-hour mode.
+    int h = _hour24 ? hours : (hours % 12);
+    return h == 0 && minutes == 0;
 }
 
 void LongClock::moveToTime(int hours, int minutes) {
