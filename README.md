@@ -1,3 +1,28 @@
+# FluidNC-as-Long-Clock
+
+This is an unofficial fork of [FluidNC](https://github.com/bdring/FluidNC),
+repurposed to turn a single-axis CNC machine into an analog-style clock.
+Instead of running G-code jobs, the machine continuously moves its X axis
+carriage to a position representing the current time of day, turning the
+length of travel into a clock face.
+
+**This project is not affiliated with, endorsed by, or supported by the
+original FluidNC project or its maintainers.** All credit for the underlying
+CNC firmware goes to the FluidNC authors and contributors — see
+[bdring/FluidNC](https://github.com/bdring/FluidNC) for the original project,
+documentation, and support channels.
+
+For details on the "long clock" functionality added in this fork — how it
+works, the hardware configuration, and how to build/flash it — see
+[`long-clock/README.md`](long-clock/README.md).
+
+## Original FluidNC README
+
+The rest of this repository is otherwise a fork of FluidNC. The original
+project's README content is preserved below for reference.
+
+---
+
 <img src="https://github.com/bdring/FluidNC/wiki/images/logos/FluidNC.svg" width="600">
 
 ## Introduction
